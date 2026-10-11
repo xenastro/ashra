@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api, ApiError } from '../data/api';
+import { isStandalone } from '../homeScreen';
 import { n, t } from '../i18n';
+import { INSTALL_PATH } from '../Install';
 import { goBack, navigate } from '../router';
 import { AVATARS, THEMES } from '../shared/api';
 import { useLearner } from './LearnerContext';
@@ -62,6 +64,15 @@ export function Customize() {
           {t('me.grownUpsButton')}
         </button>
       </section>
+      {!isStandalone() && (
+        <section className="card stack">
+          <h2>{t('me.installTitle')}</h2>
+          <p className="muted small">{t('me.installBody')}</p>
+          <button className="btn btn-soft" onClick={() => navigate(INSTALL_PATH)}>
+            {t('me.installButton')}
+          </button>
+        </section>
+      )}
       <button className="btn btn-primary btn-big" onClick={() => goBack('/')}>
         {t('common.done')}
       </button>

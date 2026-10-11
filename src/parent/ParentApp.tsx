@@ -3,6 +3,7 @@ import { api, ApiError, PARENT_LOCKED } from '../data/api';
 import { saveParentLanguage, savedParentLanguage, setLocale, t } from '../i18n';
 import { navigate } from '../router';
 import { openHelp } from '../Help';
+import { INSTALL_PATH } from '../Install';
 import { AdminDashboard } from './Admin';
 import { Auth } from './Auth';
 import { ChildDetail } from './ChildDetail';
@@ -111,9 +112,12 @@ export function ParentApp({ path }: { path: string }) {
           <ChildrenList key={version} />
           <Passkeys />
           <DeleteAccount />
-          <div className="row" style={{ justifyContent: 'center', gap: 20 }}>
+          <div className="row" style={{ justifyContent: 'center', gap: '0 20px', flexWrap: 'wrap' }}>
             <button className="link" onClick={() => openHelp()}>
               {t('help.link')}
+            </button>
+            <button className="link" onClick={() => navigate(INSTALL_PATH)}>
+              {t('install.parentLink')}
             </button>
             <button className="link" onClick={() => navigate('/privacy')}>
               {t('privacy.link')}

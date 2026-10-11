@@ -1939,3 +1939,47 @@ table.simple th {
   unicode-bidi: isolate;
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- install on the home screen */
+.install-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  counter-reset: step;
+}
+
+.install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+  counter-increment: step;
+}
+
+.install-steps li::before {
+  content: counter(step);
+  flex: none;
+  width: 24px;
+  padding-top: 8px;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.step-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.install-steps li > span:last-child {
+  padding-top: 7px;
+}

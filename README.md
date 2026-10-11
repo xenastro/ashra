@@ -53,6 +53,8 @@ Text lives in [src/locales](src/locales) (`en.json`, `ar.json`); a unit test che
 
 ## Deploying
 
+The Worker is connected to GitHub, so every push to `main` builds and deploys the live site. D1 migrations aren't applied by the deploy: run `npm run db:migrate:remote` first when a change adds one. Setting it up from scratch:
+
 ```sh
 npx wrangler login
 npx wrangler d1 create ashra-db        # put the id in wrangler.jsonc
