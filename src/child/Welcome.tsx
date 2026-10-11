@@ -3,7 +3,9 @@ import { useHumanCheck } from '../components/Turnstile';
 import { api, ApiError, phoneLabel } from '../data/api';
 import { requestPersistence, setDevice, type DeviceRecord } from '../data/db';
 import type { Language } from '../engine/types';
+import { shouldSuggestInstall } from '../homeScreen';
 import { saveParentLanguage, savedParentLanguage, setLocale, t } from '../i18n';
+import { INSTALL_PATH } from '../Install';
 import { navigate } from '../router';
 import { AVATARS, THEMES, type LearnerDTO } from '../shared/api';
 import { THEME_SWATCH } from './Customize';
@@ -67,10 +69,15 @@ export function Welcome({ onPaired }: { onPaired: (d: DeviceRecord) => void }) {
           {t('welcome.haveCode')}
         </button>
       </div>
-      <div className="row" style={{ justifyContent: 'center', gap: 20, marginTop: 'auto' }}>
+      <div className="row" style={{ justifyContent: 'center', gap: '0 20px', marginTop: 'auto', flexWrap: 'wrap' }}>
         <button className="link" onClick={() => navigate('/parent')}>
           {t('welcome.grownUp')}
         </button>
+        {shouldSuggestInstall() && (
+          <button className="link" onClick={() => navigate(INSTALL_PATH)}>
+            {t('welcome.install')}
+          </button>
+        )}
         <button className="link" onClick={() => navigate('/privacy')}>
           {t('privacy.link')}
         </button>

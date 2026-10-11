@@ -3,7 +3,9 @@ import { FactMap } from '../components/FactMap';
 import { LESSONS, nextLesson } from '../engine/lessons';
 import { DAY, fluentCount, activeFacts } from '../engine/mastery';
 import { dayKey, practisedToday } from '../engine/stats';
+import { promptInstall, shouldSuggestInstall, useCanPrompt, useJustInstalled } from '../homeScreen';
 import { n, t } from '../i18n';
+import { INSTALL_PATH } from '../Install';
 import { navigate } from '../router';
 import { applyUpdate, useUpdateReady } from '../update';
 import { useLearner } from './LearnerContext';
@@ -25,9 +27,14 @@ export function Home() {
   }, [events]);
   const daysThisWeek = week.filter(Boolean).length;
   const practiceDays = useMemo(() => new Set(events.filter((e) => e.type === 'answer').map((e) => dayKey(e.ts))).size, [events]);
-  const [nudgeHidden, setNudgeHidden] = useState(nudgeDismissed);
+  const [nudgeHidden, setNudgeHidden] = useState(() => hiddenFor(NUDGE_KEY));
   // A child who started alone: after a few days, a calm word about keeping their progress safe.
   const nudge = learner.connected === false && practiceDays >= NUDGE_AFTER_DAYS && !nudgeHidden;
+  const [installHidden, setInstallHidden] = useState(() => !shouldSuggestInstall() || hiddenFor(INSTALL_KEY, INSTALL_PAUSE_DAYS));
+  const canPrompt = useCanPrompt();
+  const justInstalled = useJustInstalled();
+  // One card at a time: keeping progress safe matters more than the icon.
+  const suggestInstall = !installHidden && !nudge && !justInstalled;
 
   const { checkup } = state;
   // Younger learners start with the "Understand" lessons, before the check-up.
@@ -81,7 +88,7 @@ export function Home() {
             <button
               className="btn btn-ghost"
               onClick={() => {
-                dismissNudge();
+                pause(NUDGE_KEY);
                 setNudgeHidden(true);
               }}
             >
@@ -100,6 +107,34 @@ export function Home() {
         </button>
         <p className="note">{cta.note}</p>
       </section>
+
+      {suggestInstall && (
+        <section className="card stack" aria-labelledby="install-title">
+          <h2 id="install-title">{t('home.installTitle')}</h2>
+          <p className="muted small">{t('home.installBody')}</p>
+          <div className="row">
+            <button
+              className="btn btn-soft grow"
+              onClick={() =>
+                canPrompt
+                  ? void promptInstall().then((r) => (r === 'accepted' ? setInstallHidden(true) : r === 'unavailable' && navigate(INSTALL_PATH)))
+                  : navigate(INSTALL_PATH)
+              }
+            >
+              {canPrompt ? t('home.installNow') : t('home.installHow')}
+            </button>
+            <button
+              className="btn btn-ghost"
+              onClick={() => {
+                pause(INSTALL_KEY);
+                setInstallHidden(true);
+              }}
+            >
+              {t('home.notNow')}
+            </button>
+          </div>
+        </section>
+      )}
 
       {young && (
         <section className="card stack" aria-labelledby="path-title">
@@ -185,19 +220,22 @@ export function Home() {
 
 const NUDGE_AFTER_DAYS = 3;
 const NUDGE_KEY = 'ashra.nudgeDismissed';
+const INSTALL_KEY = 'ashra.installDismissed';
+/** "Not now" on the home-screen card waits a while longer: it's a nice-to-have. */
+const INSTALL_PAUSE_DAYS = 14;
 
-/** "Not now" hides the card for a week. */
-function nudgeDismissed(): boolean {
+/** "Not now" hides a card for a while (a week unless said otherwise). */
+function hiddenFor(key: string, days = 7): boolean {
   try {
-    return Date.now() - Number(localStorage.getItem(NUDGE_KEY) ?? 0) < 7 * DAY;
+    return Date.now() - Number(localStorage.getItem(key) ?? 0) < days * DAY;
   } catch {
     return false;
   }
 }
 
-function dismissNudge() {
+function pause(key: string) {
   try {
-    localStorage.setItem(NUDGE_KEY, String(Date.now()));
+    localStorage.setItem(key, String(Date.now()));
   } catch {
     /* private mode */
   }

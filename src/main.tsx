@@ -7,6 +7,8 @@ import type { LessonId } from './engine/lessons';
 import { NumberWordsShow } from './components/NumberWordsShow';
 import { TurnaroundShow } from './components/TurnaroundShow';
 import { Help, HELP_PATH } from './Help';
+import { startInstallWatch } from './homeScreen';
+import { Install, INSTALL_PATH } from './Install';
 import { setLocale } from './i18n';
 import { ParentApp } from './parent/ParentApp';
 import { Privacy } from './Privacy';
@@ -70,10 +72,12 @@ function App() {
   if (import.meta.env.DEV && path === '/dev/lesson') return <LessonPreview />;
   if (path === '/privacy') return <Privacy />;
   if (path === HELP_PATH) return <Help />;
+  if (path === INSTALL_PATH) return <Install />;
   return path.startsWith('/parent') ? <ParentApp path={path} /> : <ChildApp path={path} />;
 }
 
 startUpdates();
+startInstallWatch();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

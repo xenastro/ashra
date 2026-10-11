@@ -41,7 +41,8 @@
     "codeBody": "On your other phone, open Ashra, tap your picture, then “Show my code”. A grown-up can give you a code too.",
     "offline": "You're offline. Ashra needs the internet the first time.",
     "notHuman": "We couldn't check this phone. Please try again.",
-    "tapBox": "Tap the box below."
+    "tapBox": "Tap the box below.",
+    "install": "Install as an app"
   },
   "home": {
     "hi": "Hi, {name}",
@@ -63,7 +64,11 @@
     "keepSafeTitle": "Keep your progress safe",
     "keepSafeBody": "Ask a grown-up to connect Ashra to their account. Then your progress is safe even if this phone gets lost.",
     "keepSafeHow": "Show me how",
-    "notNow": "Not now"
+    "notNow": "Not now",
+    "installTitle": "Put Ashra on your home screen",
+    "installBody": "Then it opens like an app, with its own icon. A grown-up can help.",
+    "installNow": "Add it now",
+    "installHow": "Show me how"
   },
   "practice": {
     "exit": "Finish for now",
@@ -120,7 +125,10 @@
     "grownUpsTitle": "Grown-ups",
     "grownUpsBody": "A grown-up can see your progress and keep it safe. They can sign in here, on this phone.",
     "grownUpsConnected": "You're connected to a grown-up's account.",
-    "grownUpsButton": "Parent area"
+    "grownUpsButton": "Parent area",
+    "installTitle": "On the home screen",
+    "installBody": "Open Ashra like an app, straight from its icon.",
+    "installButton": "Show me how"
   },
   "parent": {
     "thWhen": "When",
@@ -189,7 +197,7 @@
     "linkPhone": "Link a phone",
     "linkSteps": "On your child's phone, open {url} in Chrome and enter this code:",
     "linkExpires": "Code expires in {m} min.",
-    "linkInstall": "Then tap ⋮ → “Add to Home screen” so it opens like an app.",
+    "linkInstall": "Then put Ashra on that phone’s home screen, so it opens like an app. Ashra suggests it, and {url}/install shows how.",
     "devices": "Linked phones",
     "noDevices": "No phones linked yet.",
     "unlink": "Unlink",
@@ -487,6 +495,45 @@
     "mapMastered": "Stayed fast across reviews spread over more than a week. Checked every 3 weeks.",
     "mapNote": "One wrong answer moves a fact back to amber. Here you see the answers from amber up; your child sees them only once a fact is green.",
     "readMore": "How the app picks questions"
+  },
+  "install": {
+    "title": "Put Ashra on the home screen",
+    "parentLink": "Install on a phone",
+    "intro": "Then Ashra opens like an app: full screen, from its own icon. It also keeps the practice saved on the phone safer, since browsers can clear websites’ data but not an app’s.",
+    "already": "✓ Ashra is already on this phone’s home screen.",
+    "which": "Which phone?",
+    "iphone": "iPhone or iPad",
+    "android": "Android",
+    "onComputer": "These steps are for a phone. Open this page on the phone itself: copy the link below and send it there.",
+    "done": "✓ Done! Ashra is on the home screen. It may take a few seconds to appear.",
+    "installButton": "Install Ashra",
+    "installNote": "Your phone will ask you to confirm.",
+    "orMenu": "Or, from Chrome’s menu",
+    "chromeTitle": "In Chrome",
+    "useChrome": "This is easiest in Chrome: open this page there, then:",
+    "chrome1": "Tap ⋮ at the top right of Chrome.",
+    "chrome2": "Tap “Add to Home screen”. On some phones it says “Install app”.",
+    "chrome3": "Tap “Install”. Ashra’s icon appears on the home screen after a few seconds.",
+    "samsungTitle": "In Samsung Internet",
+    "samsung1": "Tap ≡ at the bottom right.",
+    "samsung2": "Tap “Add page to”, then “Home screen”.",
+    "samsung3": "Tap “Add”. Ashra’s icon appears on the home screen.",
+    "safariTitle": "In Safari",
+    "useSafari": "This only works well in Safari: open this page there, then:",
+    "safari1": "Tap ⋯ next to the address. If you see the Share button (a square with an arrow) instead, tap that and skip the next step.",
+    "safari2": "Tap “Share”.",
+    "safari3": "Scroll down and tap “Add to Home Screen”. Not in the list? Tap “Edit Actions” at the very bottom and add it.",
+    "safari4": "If you see “Open as Web App”, leave it on. Then tap “Add” at the top right.",
+    "safariTip": "Opened the link from WhatsApp, Messages or Mail and can’t find these buttons? Tap the compass icon to open the page in Safari first.",
+    "iosChromeTitle": "In Chrome",
+    "iosChrome1": "Tap the Share button (a square with an arrow) at the top right, next to the address.",
+    "iosChrome2": "Scroll down and tap “Add to Home Screen”.",
+    "iosChrome3": "Tap “Add” at the top right.",
+    "inAppTitle": "Open it in the phone’s browser first",
+    "inAppIos": "This page is open inside another app, which can’t add it to the home screen. Tap ⋯ or the compass icon and choose “Open in Safari” (or “Open in browser”). Or copy the link and paste it into Safari.",
+    "inAppAndroid": "This page is open inside another app, which can’t add it to the home screen. Tap ⋮ and choose “Open in Chrome” (or “Open in browser”). Or copy the link and paste it into Chrome.",
+    "copy": "Copy the link",
+    "copied": "Copied"
   },
   "sound": {
     "turnOn": "Turn sound on",
