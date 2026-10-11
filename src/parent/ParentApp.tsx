@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError, PARENT_LOCKED } from '../data/api';
 import { saveParentLanguage, savedParentLanguage, setLocale, t } from '../i18n';
 import { navigate } from '../router';
+import { AdminDashboard } from './Admin';
 import { Auth } from './Auth';
 import { ChildDetail } from './ChildDetail';
 import { ChildrenList } from './ChildrenList';
@@ -14,6 +15,8 @@ interface Me {
   /** This phone also holds a child's practice: the area locks when idle. */
   shared: boolean;
   locked: boolean;
+  /** Runs Ashra: sees every family's numbers (ADMIN_EMAILS on the Worker). */
+  admin?: boolean;
 }
 
 export function ParentApp({ path }: { path: string }) {
@@ -65,9 +68,14 @@ export function ParentApp({ path }: { path: string }) {
   if (me.locked) return <Unlock email={me.email} onUnlocked={refresh} onSignOut={signOut} />;
 
   const childMatch = path.match(/^\/parent\/child\/([\w-]+)/);
+  const previewMatch = me.admin ? path.match(/^\/parent\/admin\/child\/([\w-]+)/) : null;
   return (
     <div className="parent">
-      {childMatch ? (
+      {previewMatch ? (
+        <ChildDetail key={previewMatch[1]} id={previewMatch[1]} preview />
+      ) : me.admin && path === '/parent/admin' ? (
+        <AdminDashboard />
+      ) : childMatch ? (
         <ChildDetail id={childMatch[1]} />
       ) : (
         <>
@@ -83,6 +91,11 @@ export function ParentApp({ path }: { path: string }) {
             </div>
           </header>
           <p className="muted small">{me.email}</p>
+          {me.admin && (
+            <button className="btn btn-soft" onClick={() => navigate('/parent/admin')}>
+              📊 {t('admin.link')}
+            </button>
+          )}
           {me.shared && (
             <button className="btn btn-soft" onClick={() => void backToChild()}>
               {t('lock.backToChild')}

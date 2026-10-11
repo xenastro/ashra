@@ -12,6 +12,8 @@ import {
   AVATARS,
   EVENT_TYPES,
   THEMES,
+  type AdminChildDTO,
+  type AdminOverviewDTO,
   type DeviceDTO,
   type LearnerDTO,
   type LearnerSummaryDTO,
@@ -34,6 +36,8 @@ interface Env extends EmailEnv {
    * network may in an hour. Ignored over https, so it can never loosen the live site.
    */
   DEV_NO_SIGNUP_LIMITS?: string;
+  /** The people who run Ashra (comma-separated emails, a secret): they see every family's numbers. */
+  ADMIN_EMAILS?: string;
 }
 
 interface Vars {
@@ -445,7 +449,7 @@ app.get('/auth/me', async (c) => {
   const s = await currentSession(c);
   if (!s) return bad(c, 'not_signed_in', 401);
   const row = await c.env.DB.prepare('SELECT email FROM parents WHERE id = ?').bind(s.parent_id).first<{ email: string }>();
-  return c.json({ email: row?.email, shared: s.shared === 1, locked: isLocked(s) });
+  return c.json({ email: row?.email, shared: s.shared === 1, locked: isLocked(s), admin: isAdmin(c.env, row?.email) });
 });
 
 /** A phone shared with a child: the parent area opens again with the password (not the phone's lock, which the child may know). */
@@ -985,6 +989,94 @@ app.post('/device/events', async (c) => {
 });
 
 app.get('/device/events', (c) => eventsPage(c, c.get('learnerId')));
+
+/* ---------------------------------------------------------------- the operator's dashboard */
+
+function isAdmin(env: Env, email: string | undefined): boolean {
+  if (!email || !env.ADMIN_EMAILS) return false;
+  return env.ADMIN_EMAILS.split(',').some((e) => e.trim().toLowerCase() === email);
+}
+
+/** Signed in as a parent whose email is in ADMIN_EMAILS. Read-only: nothing here changes a family's data. */
+async function requireAdmin(c: Ctx, next: Next) {
+  const row = await c.env.DB.prepare('SELECT email FROM parents WHERE id = ?').bind(c.get('parentId')).first<{ email: string }>();
+  if (!isAdmin(c.env, row?.email)) return bad(c, 'not_admin', 403);
+  await next();
+}
+
+app.use('/admin/*', requireParent, requireAdmin);
+
+/**
+ * Every family and child, with how much each has practised. `tz` is the viewer's getTimezoneOffset(),
+ * for days. (D1 binds numbers as REAL: the CAST keeps day numbers whole.)
+ */
+app.get('/admin/overview', async (c) => {
+  const now = Date.now();
+  const shift = Math.max(-840, Math.min(840, Math.round(Number(c.req.query('tz')) || 0))) * MINUTE;
+  const [parents, learners, practice, phones, daily] = await c.env.DB.batch([
+    c.env.DB.prepare('SELECT id, email, created_at FROM parents'),
+    c.env.DB.prepare('SELECT id, parent_id, display_name, avatar, created_at FROM learners'),
+    c.env.DB.prepare(
+      `SELECT learner_id, SUM(type = 'answer') AS answers, COUNT(DISTINCT (client_ts - CAST(? AS INTEGER)) / ${DAY}) AS days, MAX(client_ts) AS last_ts
+       FROM events GROUP BY learner_id`,
+    ).bind(shift),
+    c.env.DB.prepare('SELECT learner_id, COUNT(*) AS n FROM devices GROUP BY learner_id'),
+    c.env.DB.prepare(
+      `SELECT (client_ts - CAST(? AS INTEGER)) / ${DAY} AS day, COUNT(DISTINCT learner_id) AS children, SUM(type = 'answer') AS answers
+       FROM events WHERE client_ts > ? AND client_ts < ? GROUP BY day ORDER BY day`,
+    ).bind(shift, now - 31 * DAY, now + DAY),
+  ]);
+  type P = { learner_id: string; answers: number; days: number; last_ts: number };
+  const byLearner = new Map((practice.results as P[]).map((r) => [r.learner_id, r]));
+  const phoneCount = new Map((phones.results as { learner_id: string; n: number }[]).map((r) => [r.learner_id, r.n]));
+
+  const families = new Map(
+    (parents.results as { id: string; email: string; created_at: number }[]).map((p) => [
+      p.id,
+      { id: p.id, email: p.email, createdAt: p.created_at, children: [] as AdminChildDTO[] },
+    ]),
+  );
+  const solo: AdminChildDTO[] = [];
+  for (const l of learners.results as { id: string; parent_id: string | null; display_name: string; avatar: string; created_at: number }[]) {
+    const p = byLearner.get(l.id);
+    const child: AdminChildDTO = {
+      id: l.id,
+      displayName: l.display_name,
+      avatar: l.avatar,
+      createdAt: l.created_at,
+      connected: l.parent_id !== null,
+      answers: p?.answers ?? 0,
+      practiceDays: p?.days ?? 0,
+      lastActivityAt: p?.last_ts ?? null,
+      deviceCount: phoneCount.get(l.id) ?? 0,
+    };
+    const family = l.parent_id ? families.get(l.parent_id) : undefined;
+    if (family) family.children.push(child);
+    else solo.push(child);
+  }
+
+  const overview: AdminOverviewDTO = {
+    families: [...families.values()],
+    solo,
+    daily: (daily.results as { day: number; children: number; answers: number }[]).map((d) => ({
+      day: d.day,
+      children: d.children,
+      answers: d.answers,
+    })),
+  };
+  return c.json(overview);
+});
+
+/** One child's page, as their parent sees it. */
+app.get('/admin/learners/:id', async (c) => {
+  const row = await c.env.DB.prepare('SELECT l.*, p.email FROM learners l LEFT JOIN parents p ON p.id = l.parent_id WHERE l.id = ?')
+    .bind(c.req.param('id'))
+    .first<LearnerRow & { email: string | null }>();
+  if (!row) return bad(c, 'not_found', 404);
+  return c.json({ learner: toLearner(row), familyEmail: row.email });
+});
+
+app.get('/admin/learners/:id/events', (c) => eventsPage(c, c.req.param('id')));
 
 app.all('*', (c) => bad(c, 'not_found', 404));
 

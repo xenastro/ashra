@@ -134,6 +134,8 @@ Five short lessons come before the check-up: **equal groups** (plates of apples)
    - feelings check-ins
 4. **Settings for each child** (§4.5).
 
+**Operator (the people who run Ashra, `ADMIN_EMAILS`):** "Families & children" in the parent area: how many family accounts and children there are, how many practised, children practising per day (30 days), and every family and child-on-their-own with answers, days practised and last practice. Any child's dashboard opens read-only, as their parent sees it, without their phones or settings.
+
 ## 6. Data and sync
 
 **Works offline, and every answer is recorded as an event.**
@@ -180,6 +182,7 @@ Five short lessons come before the check-up: **equal groups** (plates of apples)
 - **Parents** sign in with email and password, or a **passkey** added in the parent area (WebAuthn, discoverable credential; user ID is the parent's random ID). Passwords are hashed with PBKDF2 via the browser-standard crypto built into Workers. Sessions use an HttpOnly cookie.
 - **Bots and abuse:** Cloudflare Turnstile (managed mode: at most a checkbox, never a puzzle) on the three screens that create something: a child starting, parent sign-up and password reset. Its script loads only there. If the check can't run for a child (a filtered network, or the checkbox isn't tapped within 20 s, with "Tap the box below." shown), the child starts anyway, but such starts are limited to 3 per network per hour and 50 a day. Limits: 20 new children per network per hour (a school class shares one) and 300 a day site-wide; 10 parent sign-ups per network per hour; 5,000 answers per child per day; 10 children per parent.
 - **Retention:** a nightly job deletes children with no parent who never practised (after 7 days) or haven't practised for a year, plus expired sessions, codes and challenges.
+- **The operator** sees usage counts and each child's practice to look after the app (stated under "Who runs it" on /privacy); never shared, and nothing in a family's account can be changed from there.
 - **Data about children is kept to a minimum:** avatar, colour, settings and practice events; a first name or nickname and birth year only if a parent adds them. No analytics or third-party trackers. Under COPPA, the device token is a persistent identifier used only for internal operations (keeping the child signed in and their practice), which the privacy page states.
 - **Built for opening to other families (release 3):**
   - **Password reset:** "Forgot password?" sends a one-time link that works for 60 minutes (only a hash is stored; the same reply whether or not the email has an account; rate-limited). Sent through Cloudflare Email Service from noreply@ashra.aburaddad.com, in English and Arabic ([worker/email.ts](worker/email.ts)). At most 3 emails per address per hour and 50 a day, keeping Ashra within half the account's free 3,000 a month; over a cap nothing is sent and the reply is the same.

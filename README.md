@@ -28,6 +28,7 @@ DEV_NO_SIGNUP_LIMITS=1
 RP_ID=localhost
 ORIGINS=http://localhost:5173,http://localhost:8787
 EMAIL_PROVIDER=log
+ADMIN_EMAILS=admin@example.com
 VARS
 npm run build          # the Worker serves ./dist
 npm run dev:api        # Worker + local D1 on :8787
@@ -57,8 +58,13 @@ npx wrangler login
 npx wrangler d1 create ashra-db        # put the id in wrangler.jsonc
 npm run db:migrate:remote
 npx wrangler secret put TURNSTILE_SECRET # from a Turnstile widget for your domain; its site key goes in wrangler.jsonc
+npx wrangler secret put ADMIN_EMAILS     # who runs the site: comma-separated parent-account emails
 npm run deploy
 ```
+
+### The operator's dashboard
+
+A parent account whose email is in `ADMIN_EMAILS` gets a "Families & children" button in the parent area (`/parent/admin`). It shows how many families and children use Ashra, children practising per day over the last 30 days, and every family with its children. Tapping a child opens their dashboard exactly as their parent sees it, read-only (their phones and settings are left out). Locally the admin is `admin@example.com`: sign up with that email to see it. It is a secret rather than a var so the address stays out of the public repo.
 
 ### Password-reset email
 

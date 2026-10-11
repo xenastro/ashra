@@ -32,6 +32,34 @@ export interface PasskeyDTO {
   lastUsedAt: number | null;
 }
 
+/** The operator's dashboard: one child and how much they have practised. */
+export interface AdminChildDTO {
+  id: string;
+  displayName: string;
+  avatar: string;
+  createdAt: number;
+  connected: boolean;
+  answers: number;
+  practiceDays: number;
+  lastActivityAt: number | null;
+  deviceCount: number;
+}
+
+export interface AdminFamilyDTO {
+  id: string;
+  email: string;
+  createdAt: number;
+  children: AdminChildDTO[];
+}
+
+export interface AdminOverviewDTO {
+  families: AdminFamilyDTO[];
+  /** Children who started on their own and have no parent account yet. */
+  solo: AdminChildDTO[];
+  /** Practice per day over the last month, oldest first. `day` counts days since 1970 in the viewer's time zone. */
+  daily: { day: number; children: number; answers: number }[];
+}
+
 export interface EventDTO {
   id: string;
   type: EventType;

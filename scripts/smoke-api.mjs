@@ -248,5 +248,45 @@ cookie = childPhone;
 r = await call('POST', '/api/auth/passkey/register-options');
 check('passkey registration needs a parent', r.status === 401, r);
 
+// ---- The operator's dashboard: only for ADMIN_EMAILS (locally admin@example.com, in .dev.vars).
+cookie = claimer;
+r = await call('GET', '/api/auth/me');
+check('a parent is not an admin', r.data.admin === false, r);
+r = await call('GET', '/api/admin/overview');
+check('a parent cannot see the dashboard', r.status === 403 && r.data.error === 'not_admin', r);
+r = await call('GET', `/api/admin/learners/${child.id}/events`);
+check("…nor another family's child", r.status === 403, r);
+cookie = '';
+r = await call('GET', '/api/admin/overview');
+check('signed out: no dashboard', r.status === 401, r);
+
+r = await call('POST', '/api/start', { avatar: '🚀', theme: 'blue', settings: {} });
+const solo = { id: r.data.learner.id, auth: { authorization: `Bearer ${r.data.token}` } };
+const soloAnswer = (i) => ({ id: `solo-${Date.now()}-${i}`, type: 'answer', ts: Date.now() + i, payload: { a: 3, b: 4, given: 12, correct: true, latencyMs: 1500, mode: 'practice', hinted: false, sessionId: 'x' } });
+await call('POST', '/api/device/events', { events: [soloAnswer(0), soloAnswer(1)] }, solo.auth);
+cookie = '';
+r = await call('POST', '/api/auth/signup', { email: 'admin@example.com', password: 'admin password' });
+if (r.status === 409) r = await call('POST', '/api/auth/login', { email: 'admin@example.com', password: 'admin password' });
+r = await call('GET', '/api/auth/me');
+if (!r.data?.admin) {
+  console.log('  skip  dashboard checks: put ADMIN_EMAILS=admin@example.com in .dev.vars');
+} else {
+  r = await call('GET', `/api/admin/overview?tz=${new Date().getTimezoneOffset()}`);
+  const family = r.data.families?.find((f) => f.children.some((c) => c.id === child.id));
+  const soloRow = r.data.solo?.find((c) => c.id === solo.id);
+  check('the dashboard lists families with their children', r.status === 200 && family?.children.find((c) => c.id === child.id)?.connected, r.status);
+  check('…and children on their own, with their practice', soloRow?.answers === 2 && soloRow.practiceDays === 1 && soloRow.deviceCount === 1, soloRow);
+  const today = r.data.daily.at(-1);
+  check('…and practice per whole day', Number.isInteger(today?.day) && today.children >= 1 && today.answers >= 2, today);
+  r = await call('GET', `/api/admin/learners/${solo.id}`);
+  check("the admin opens any child's page", r.status === 200 && r.data.learner.id === solo.id && r.data.familyEmail === null, r);
+  r = await call('GET', `/api/admin/learners/${child.id}`);
+  check("…with the family's email", r.data.familyEmail?.startsWith('claim+'), r);
+  r = await call('GET', `/api/admin/learners/${solo.id}/events`);
+  check('…and their practice', r.data.events.length === 2, r);
+  r = await call('GET', '/api/admin/learners/nope');
+  check('an unknown child is not found', r.status === 404, r);
+}
+
 console.log(failures ?`\n${failures} check(s) failed` : '\nAll API checks passed');
 process.exit(failures ? 1 : 0);

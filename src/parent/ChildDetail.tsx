@@ -7,7 +7,7 @@ import { factKey } from '../engine/facts';
 import { activeFacts, DAY, deriveState, fluentCount, median } from '../engine/mastery';
 import { dailyStats, factHistory, feelings, practiceDaysLast7, sessionHistory, troubleFacts } from '../engine/stats';
 import { isProductAnswer, withDefaults, type AnswerPayload, type TutorEvent } from '../engine/types';
-import { api } from '../data/api';
+import { api, ApiError } from '../data/api';
 import { t } from '../i18n';
 import { goBack, navigate } from '../router';
 import type { EventsPage, LearnerDTO, LearnerSummaryDTO } from '../shared/api';
@@ -18,11 +18,11 @@ import { SettingsPanel } from './SettingsPanel';
 
 const FEELING_EMOJI = { calm: '😌', ok: '🙂', hard: '😣' } as const;
 
-async function loadAllEvents(id: string): Promise<TutorEvent[]> {
+async function loadAllEvents(base: string, id: string): Promise<TutorEvent[]> {
   const out: TutorEvent[] = [];
   let since = 0;
   for (;;) {
-    const page = await api<EventsPage>('GET', `/learners/${id}/events?since=${since}`);
+    const page = await api<EventsPage>('GET', `${base}/events?since=${since}`);
     for (const e of page.events) out.push({ ...e, learnerId: id });
     since = page.lastSeq;
     if (!page.more) break;
@@ -43,17 +43,34 @@ function windowStats(events: TutorEvent[], from: number, to: number) {
   };
 }
 
-export function ChildDetail({ id }: { id: string }) {
+/**
+ * One child's dashboard. `preview`: the operator looking at any family's child, read-only
+ * (no phones or settings, which are the family's).
+ */
+export function ChildDetail({ id, preview = false }: { id: string; preview?: boolean }) {
   const [learner, setLearner] = useState<LearnerDTO | null>(null);
+  /** Preview only: the family's email, or null for a child who started on their own. */
+  const [familyEmail, setFamilyEmail] = useState<string | null>(null);
   const [events, setEvents] = useState<TutorEvent[] | null>(null);
   const [error, setError] = useState(false);
   const [selected, setSelected] = useState<[number, number] | null>(null);
+  const home = preview ? '/parent/admin' : '/parent';
 
   const load = useCallback(async () => {
     try {
+      if (preview) {
+        const [r, evs] = await Promise.all([
+          api<{ learner: LearnerDTO; familyEmail: string | null }>('GET', `/admin/learners/${id}`),
+          loadAllEvents(`/admin/learners/${id}`, id),
+        ]);
+        setLearner(r.learner);
+        setFamilyEmail(r.familyEmail);
+        setEvents(evs);
+        return;
+      }
       const [{ learners }, evs] = await Promise.all([
         api<{ learners: LearnerSummaryDTO[] }>('GET', '/learners'),
-        loadAllEvents(id),
+        loadAllEvents(`/learners/${id}`, id),
       ]);
       const l = learners.find((x) => x.id === id);
       if (!l) {
@@ -62,10 +79,11 @@ export function ChildDetail({ id }: { id: string }) {
       }
       setLearner(l);
       setEvents(evs);
-    } catch {
-      setError(true);
+    } catch (err) {
+      if (preview && err instanceof ApiError && err.status === 404) navigate(home, { replace: true });
+      else setError(true);
     }
-  }, [id]);
+  }, [id, preview, home]);
 
   useEffect(() => {
     void load();
@@ -96,7 +114,7 @@ export function ChildDetail({ id }: { id: string }) {
     <>
       <header className="parent-header">
         <div className="row">
-          <button className="icon-btn" aria-label={t('common.back')} onClick={() => goBack('/parent')}>
+          <button className="icon-btn" aria-label={t('common.back')} onClick={() => goBack(home)}>
             <span className="flip-rtl">←</span>
           </button>
           <span className="avatar" aria-hidden="true">
@@ -108,6 +126,16 @@ export function ChildDetail({ id }: { id: string }) {
           ↻
         </button>
       </header>
+
+      {preview && (
+        <p className="banner" role="note" style={{ overflowWrap: 'anywhere' }}>
+          {t('admin.preview')}
+          <br />
+          <span className="small" style={{ fontWeight: 400 }}>
+            {familyEmail ? t('admin.previewFamily', { email: familyEmail }) : t('admin.previewSolo')}
+          </span>
+        </p>
+      )}
 
       <section className="tiles" aria-label={t('parent.overview')}>
         <div className="stat">
@@ -279,10 +307,12 @@ export function ChildDetail({ id }: { id: string }) {
         )}
       </section>
 
-      <div className="grid-2">
-        <Devices learnerId={learner.id} />
-        <SettingsPanel learner={learner} onSaved={setLearner} />
-      </div>
+      {!preview && (
+        <div className="grid-2">
+          <Devices learnerId={learner.id} />
+          <SettingsPanel learner={learner} onSaved={setLearner} />
+        </div>
+      )}
 
       {selected && selFact && (
         <Sheet onClose={() => setSelected(null)}>
