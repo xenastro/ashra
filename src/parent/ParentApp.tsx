@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError, PARENT_LOCKED } from '../data/api';
 import { saveParentLanguage, savedParentLanguage, setLocale, t } from '../i18n';
 import { navigate } from '../router';
+import { openHelp } from '../Help';
 import { AdminDashboard } from './Admin';
 import { Auth } from './Auth';
 import { ChildDetail } from './ChildDetail';
@@ -110,9 +111,14 @@ export function ParentApp({ path }: { path: string }) {
           <ChildrenList key={version} />
           <Passkeys />
           <DeleteAccount />
-          <button className="link" style={{ alignSelf: 'center' }} onClick={() => navigate('/privacy')}>
-            {t('privacy.link')}
-          </button>
+          <div className="row" style={{ justifyContent: 'center', gap: 20 }}>
+            <button className="link" onClick={() => openHelp()}>
+              {t('help.link')}
+            </button>
+            <button className="link" onClick={() => navigate('/privacy')}>
+              {t('privacy.link')}
+            </button>
+          </div>
         </>
       )}
     </div>

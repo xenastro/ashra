@@ -1864,3 +1864,78 @@ table.simple th {
 .turnstile:empty {
   display: none;
 }
+
+/* ---------------------------------------------------------------- how it works */
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+  flex: none;
+  vertical-align: -2px;
+  margin-inline-end: 8px;
+  border: 1px solid rgb(0 0 0 / 0.06);
+}
+
+.help ul,
+.help-keys {
+  margin: 0;
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.help li,
+.help-keys li {
+  line-height: 1.5;
+}
+
+.help-keys {
+  list-style: none;
+  padding: 0;
+  gap: 12px;
+}
+
+.help-keys li {
+  display: flex;
+  align-items: flex-start;
+}
+
+.help-keys .swatch {
+  margin-top: 4px;
+}
+
+.help-contents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.help-contents a {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.help section {
+  scroll-margin-top: 12px;
+}
+
+.info-btn {
+  color: var(--ink-3);
+  margin-inline-start: 0;
+}
+
+.help-keys strong.block {
+  display: block;
+}
+
+.help .sum {
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}

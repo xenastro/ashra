@@ -6,6 +6,7 @@ import { Lesson } from './child/Lesson';
 import type { LessonId } from './engine/lessons';
 import { NumberWordsShow } from './components/NumberWordsShow';
 import { TurnaroundShow } from './components/TurnaroundShow';
+import { Help, HELP_PATH } from './Help';
 import { setLocale } from './i18n';
 import { ParentApp } from './parent/ParentApp';
 import { Privacy } from './Privacy';
@@ -68,6 +69,7 @@ function App() {
   if (import.meta.env.DEV && path === '/dev/turnaround') return <TurnaroundPreview />;
   if (import.meta.env.DEV && path === '/dev/lesson') return <LessonPreview />;
   if (path === '/privacy') return <Privacy />;
+  if (path === HELP_PATH) return <Help />;
   return path.startsWith('/parent') ? <ParentApp path={path} /> : <ChildApp path={path} />;
 }
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FactMap, Legend } from '../components/FactMap';
 import { Sheet } from '../components/FactSheet';
+import { InfoButton, MapHelpSheet } from '../components/Info';
 import { GuideSteps } from '../components/StrategyView';
 import { TurnaroundToggle } from '../components/TurnaroundShow';
 import { factKey } from '../engine/facts';
@@ -8,6 +9,7 @@ import { activeFacts, DAY, deriveState, fluentCount, median } from '../engine/ma
 import { dailyStats, factHistory, feelings, practiceDaysLast7, sessionHistory, troubleFacts } from '../engine/stats';
 import { isProductAnswer, withDefaults, type AnswerPayload, type TutorEvent } from '../engine/types';
 import { api, ApiError } from '../data/api';
+import { openHelp } from '../Help';
 import { t } from '../i18n';
 import { goBack, navigate } from '../router';
 import type { EventsPage, LearnerDTO, LearnerSummaryDTO } from '../shared/api';
@@ -54,6 +56,7 @@ export function ChildDetail({ id, preview = false }: { id: string; preview?: boo
   const [events, setEvents] = useState<TutorEvent[] | null>(null);
   const [error, setError] = useState(false);
   const [selected, setSelected] = useState<[number, number] | null>(null);
+  const [mapHelp, setMapHelp] = useState(false);
   const home = preview ? '/parent/admin' : '/parent';
 
   const load = useCallback(async () => {
@@ -122,9 +125,12 @@ export function ChildDetail({ id, preview = false }: { id: string; preview?: boo
           </span>
           <h1>{learner.displayName || t('parent.noName')}</h1>
         </div>
-        <button className="btn btn-ghost" onClick={() => void load()} aria-label={t('common.refresh')}>
-          ↻
-        </button>
+        <div className="row" style={{ gap: 0 }}>
+          <InfoButton label={t('help.title')} onClick={() => openHelp('dashboard')} />
+          <button className="btn btn-ghost" onClick={() => void load()} aria-label={t('common.refresh')}>
+            ↻
+          </button>
+        </div>
       </header>
 
       {preview && (
@@ -175,7 +181,10 @@ export function ChildDetail({ id, preview = false }: { id: string; preview?: boo
 
       <div className="grid-2">
         <section className="card stack map-card">
-          <h2>{t('parent.map')}</h2>
+          <div className="row spread">
+            <h2>{t('parent.map')}</h2>
+            <InfoButton label={t('help.mapTitle')} onClick={() => setMapHelp(true)} />
+          </div>
           <p className="muted small">{t('parent.mapNote')}</p>
           <FactMap state={state} onSelect={(a, b) => setSelected([a, b])} showProductsFrom={1} />
           <Legend />
@@ -313,6 +322,8 @@ export function ChildDetail({ id, preview = false }: { id: string; preview?: boo
           <SettingsPanel learner={learner} onSaved={setLearner} />
         </div>
       )}
+
+      {mapHelp && <MapHelpSheet onClose={() => setMapHelp(false)} />}
 
       {selected && selFact && (
         <Sheet onClose={() => setSelected(null)}>
