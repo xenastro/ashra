@@ -1,6 +1,6 @@
 # Ashra (عشرة) — Product Spec
 
-> **Status:** v0.2 · 2026-10-10 · live at ashra.aburaddad.com
+> **Status:** v0.2 · 2026-10-10 · live at ashra.radrek.com
 > **Name:** Ashra (عشرة, "ten"): the base of every number and the last row of the tables. One word that reads easily in English and Arabic.
 
 ## 1. Goal
@@ -185,7 +185,7 @@ Five short lessons come before the check-up: **equal groups** (plates of apples)
 - **The operator** sees usage counts and each child's practice to look after the app (stated under "Who runs it" on /privacy); never shared, and nothing in a family's account can be changed from there.
 - **Data about children is kept to a minimum:** avatar, colour, settings and practice events; a first name or nickname and birth year only if a parent adds them. No analytics or third-party trackers. Under COPPA, the device token is a persistent identifier used only for internal operations (keeping the child signed in and their practice), which the privacy page states.
 - **Built for opening to other families (release 3):**
-  - **Password reset:** "Forgot password?" sends a one-time link that works for 60 minutes (only a hash is stored; the same reply whether or not the email has an account; rate-limited). Sent through Cloudflare Email Service from noreply@ashra.aburaddad.com, in English and Arabic ([worker/email.ts](worker/email.ts)). At most 3 emails per address per hour and 50 a day, keeping Ashra within half the account's free 3,000 a month; over a cap nothing is sent and the reply is the same.
+  - **Password reset:** "Forgot password?" sends a one-time link that works for 60 minutes (only a hash is stored; the same reply whether or not the email has an account; rate-limited). Sent through Cloudflare Email Service from noreply@ashra.radrek.com, in English and Arabic ([worker/email.ts](worker/email.ts)). At most 3 emails per address per hour and 50 a day, keeping Ashra within half the account's free 3,000 a month; over a cap nothing is sent and the reply is the same.
   - **Account deletion:** "Delete my account" (password + typing DELETE) removes the parent, every child, all events and phones at once.
   - **Privacy page** at `/privacy`, linked from the welcome screen, sign-in and the parent area, in English and Arabic.
 
@@ -198,7 +198,7 @@ Five short lessons come before the check-up: **equal groups** (plates of apples)
 | API | A Cloudflare Worker with the Hono router; the same Worker also serves the app files |
 | Database | Cloudflare D1 |
 | Tests | Vitest, covering the learning engine: scheduling, mastery and session building |
-| Hosting | Cloudflare Workers free tier at `ashra.aburaddad.com`; DNS is set up automatically on deploy |
+| Hosting | Cloudflare Workers free tier at `ashra.radrek.com`; DNS is set up automatically on deploy. The old `ashra.aburaddad.com` redirects there ([redirect/](redirect/index.ts)) |
 | i18n | All text in `src/locales/en.json` and `ar.json`; Arabic is right to left (CSS logical properties), sums stay left to right |
 
 **Android setup:**

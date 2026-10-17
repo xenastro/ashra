@@ -17,17 +17,17 @@
       "migrations_dir": "migrations"
     }
   ],
-  "routes": [{ "pattern": "ashra.aburaddad.com", "custom_domain": true }],
+  "routes": [{ "pattern": "ashra.radrek.com", "custom_domain": true }],
   "vars": {
-    "RP_ID": "ashra.aburaddad.com",
-    "ORIGINS": "https://ashra.aburaddad.com",
+    "RP_ID": "ashra.radrek.com",
+    "ORIGINS": "https://ashra.radrek.com",
     // Turnstile widget "Ashra" (public key; the secret is the Worker secret TURNSTILE_SECRET).
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFTHrLaaN3rEMzZv",
-    // Password-reset emails through Cloudflare Email Service (ashra.aburaddad.com is onboarded).
+    // Password-reset emails through Cloudflare Email Service (ashra.radrek.com is onboarded).
     "EMAIL_PROVIDER": "cloudflare",
-    "EMAIL_FROM": "noreply@ashra.aburaddad.com"
+    "EMAIL_FROM": "noreply@ashra.radrek.com"
   },
-  "send_email": [{ "name": "EMAIL", "allowed_sender_addresses": ["noreply@ashra.aburaddad.com"] }],
+  "send_email": [{ "name": "EMAIL", "allowed_sender_addresses": ["noreply@ashra.radrek.com"] }],
   // Nightly clean-up: children nobody connected (see /privacy) and expired sign-in leftovers.
   "triggers": { "crons": ["17 3 * * *"] },
   "observability": { "enabled": true }

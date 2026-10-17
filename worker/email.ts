@@ -1,8 +1,8 @@
 /**
  * Sending email, kept pluggable. The live site uses Cloudflare Email Service through the
- * `EMAIL` binding (wrangler.jsonc), sending from noreply@ashra.aburaddad.com:
+ * `EMAIL` binding (wrangler.jsonc), sending from noreply@ashra.radrek.com:
  *
- *   EMAIL_PROVIDER=cloudflare  EMAIL_FROM=noreply@ashra.aburaddad.com   (Worker vars)
+ *   EMAIL_PROVIDER=cloudflare  EMAIL_FROM=noreply@ashra.radrek.com   (Worker vars)
  *
  * Resend also works: EMAIL_PROVIDER=resend, RESEND_API_KEY=..., EMAIL_FROM="Ashra <noreply@…>".
  * With no provider, `sendEmail` returns false and, when EMAIL_LOG_LINKS=1 (local development

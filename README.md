@@ -64,12 +64,14 @@ npx wrangler secret put ADMIN_EMAILS     # who runs the site: comma-separated pa
 npm run deploy
 ```
 
+The live site is `ashra.radrek.com`. The old address `ashra.aburaddad.com` is a separate Worker, `ashra-redirect` in [redirect/](redirect/index.ts), which sends visitors to the new one and retires the old service worker. It isn't connected to GitHub and rarely changes: `npx wrangler deploy -c redirect/wrangler.jsonc`.
+
 ### The operator's dashboard
 
 A parent account whose email is in `ADMIN_EMAILS` gets a "Families & children" button in the parent area (`/parent/admin`). It shows how many families and children use Ashra, children practising per day over the last 30 days, and every family with its children. Tapping a child opens their dashboard exactly as their parent sees it, read-only (their phones and settings are left out). Locally the admin is `admin@example.com`: sign up with that email to see it. It is a secret rather than a var so the address stays out of the public repo.
 
 ### Password-reset email
 
-The live site sends through Cloudflare Email Service (needs the Workers Paid plan; 3,000 emails a month per account are included). `ashra.aburaddad.com` is onboarded as a sending subdomain, and wrangler.jsonc has the `EMAIL` binding plus `EMAIL_PROVIDER=cloudflare` and `EMAIL_FROM`. Ashra caps itself at 3 emails per address per hour and 50 a day. Locally `.dev.vars` sets `EMAIL_PROVIDER=log`, so nothing is sent and the reset link appears on screen. [Resend](https://resend.com) also works (`EMAIL_PROVIDER=resend`, secret `RESEND_API_KEY`); see [worker/email.ts](worker/email.ts).
+The live site sends through Cloudflare Email Service (needs the Workers Paid plan; 3,000 emails a month per account are included). `ashra.radrek.com` is onboarded as a sending subdomain (API: `POST /zones/:zone/email/sending/subdomains`), and wrangler.jsonc has the `EMAIL` binding plus `EMAIL_PROVIDER=cloudflare` and `EMAIL_FROM`. Ashra caps itself at 3 emails per address per hour and 50 a day. Locally `.dev.vars` sets `EMAIL_PROVIDER=log`, so nothing is sent and the reset link appears on screen. [Resend](https://resend.com) also works (`EMAIL_PROVIDER=resend`, secret `RESEND_API_KEY`); see [worker/email.ts](worker/email.ts).
 
 Never set `EMAIL_LOG_LINKS` or `DEV_NO_SIGNUP_LIMITS` on the live Worker (both are ignored over https anyway).
