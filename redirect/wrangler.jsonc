@@ -1,0 +1,10 @@
+{
+  // Sends the old address to the new one (see index.ts). Deploy: npx wrangler deploy -c redirect/wrangler.jsonc
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "ashra-redirect",
+  "main": "index.ts",
+  "compatibility_date": "2026-09-01",
+  "routes": [{ "pattern": "ashra.aburaddad.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}

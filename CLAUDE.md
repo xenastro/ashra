@@ -1,6 +1,6 @@
 # Ashra (عشرة)
 
-A phone-first web app (installable PWA) that helps children learn their times tables calmly, plus a parent dashboard. Live at https://ashra.aburaddad.com. [SPEC.md](SPEC.md) is the product spec and the learning method; [README.md](README.md) has setup details.
+A phone-first web app (installable PWA) that helps children learn their times tables calmly, plus a parent dashboard. Live at https://ashra.radrek.com (the old ashra.aburaddad.com redirects there). [SPEC.md](SPEC.md) is the product spec and the learning method; [README.md](README.md) has setup details.
 
 ## Layout
 
